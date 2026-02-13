@@ -6,7 +6,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.List;
-import java.util.Random;
 
 public class MusicPlayerService {
     private static final Logger logger = LogManager.getLogger(MusicPlayerService.class);
@@ -16,15 +15,10 @@ public class MusicPlayerService {
     
     private Song currentSong;
     private boolean isPlaying;
-    private boolean isPaused;
-    private int currentPosition; // Current position in seconds
-    private Thread playbackThread;
-    private boolean stopRequested;
-    private boolean isRepeat;
     private List<Song> currentPlaylist;
     private int currentSongIndex;
     private long currentUserId;
-    private Random random = new Random();
+    private boolean isRepeat;
 
     public void playSong(long songId, long userId) {
         try {
@@ -35,83 +29,14 @@ public class MusicPlayerService {
             currentSong = songDao.getSongById(songId);
             if (currentSong != null) {
                 isPlaying = true;
-                isPaused = false;
-                currentPosition = 0;
-                stopRequested = false;
                 songDao.incrementPlayCount(songId);
                 historyService.simulateSongPlay(userId, currentSong);
-                
-                System.out.println("\n🎵 NOW PLAYING: " + currentSong.getTitle());
-                System.out.println("   Artist: " + currentSong.getArtistName());
-                System.out.println("   Duration: " + formatTime(currentSong.getDurationSeconds()));
-                System.out.println("\n   [Press ENTER to stop during playback]\n");
-                
-                // Start playback simulation in background thread
-                startPlaybackSimulation();
             }
         } catch (Exception e) {
             logger.error("Failed to play song {}: {}", songId, e.getMessage());
         }
     }
     
-    private void startPlaybackSimulation() {
-        playbackThread = new Thread(() -> {
-            int duration = currentSong.getDurationSeconds();
-            
-            while (currentPosition < duration && !stopRequested && isPlaying) {
-                if (!isPaused) {
-                    printProgressBar(currentPosition, duration);
-                    currentPosition++;
-                    
-                    
-                    try {
-                        Thread.sleep(1000); 
-                    } catch (InterruptedException e) {
-                        break;
-                    }
-                } else {
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        break;
-                    }
-                }
-            }
-            
-            if (currentPosition >= duration) {
-                System.out.println("\n✅ Song finished!");
-                isPlaying = false;
-            } else if (stopRequested) {
-                System.out.println("\n⏹️ Stopped at " + formatTime(currentPosition));
-                isPlaying = false;
-            }
-        });
-        
-        playbackThread.start();
-    }
-    
-    private void printProgressBar(int current, int total) {
-        int width = 40;
-        int filled = (int) ((double) current / total * width);
-        String bar = "█".repeat(filled) + "░".repeat(width - filled);
-        int percent = (int) ((double) current / total * 100);
-        
-        System.out.printf("\r   %s %d%% [%s / %s]", bar, percent, formatTime(current), formatTime(total));
-    }
-    
-    private String formatTime(int seconds) {
-        int mins = seconds / 60;
-        int secs = seconds % 60;
-        return String.format("%d:%02d", mins, secs);
-    }
-    
-    public void requestStop() {
-        stopRequested = true;
-        if (playbackThread != null) {
-            playbackThread.interrupt();
-        }
-    }
-
     public void playPlaylist(List<Song> playlist, int startIndex, long userId) {
         try {
             this.currentPlaylist = playlist;
@@ -189,6 +114,13 @@ public class MusicPlayerService {
         currentSongIndex = 0;
         logger.info("⏹️ Stopped");
     }
+    
+    public void clearCurrentSong() {
+        currentSong = null;
+        currentPlaylist = null;
+        currentSongIndex = 0;
+        logger.info("🗑️ Cleared current song state");
+    }
 
     public void toggleRepeat() {
         isRepeat = !isRepeat;
@@ -207,7 +139,7 @@ public class MusicPlayerService {
         if (currentPlaylist != null && !currentPlaylist.isEmpty()) {
             // Simple shuffle implementation
             for (int i = currentPlaylist.size() - 1; i > 0; i--) {
-                int index = random.nextInt(i + 1);
+                int index = (int) (Math.random() * (i + 1));
                 Song temp = currentPlaylist.get(index);
                 currentPlaylist.set(index, currentPlaylist.get(i));
                 currentPlaylist.set(i, temp);

@@ -99,7 +99,7 @@ public class MusicLibraryMenu {
 
             if (choice > 0 && choice <= songs.size()) {
                 Song selectedSong = songs.get(choice - 1);
-                com.revplay.console.MusicPlayerMenu.playSongImmediate(selectedSong.getSongId(), currentUserId);
+                MusicMenu.playSongImmediate(selectedSong.getSongId(), currentUserId);
             }
         } catch (Exception e) {
             logger.error("Failed to search songs: {}", e.getMessage());
@@ -149,7 +149,7 @@ public class MusicLibraryMenu {
 
             if (songChoice > 0 && songChoice <= songs.size()) {
                 Song selectedSong = songs.get(songChoice - 1);
-                com.revplay.console.MusicPlayerMenu.playSongImmediate(selectedSong.getSongId(), currentUserId);
+                MusicMenu.playSongImmediate(selectedSong.getSongId(), currentUserId);
             }
         } catch (Exception e) {
             logger.error("Failed to browse by genre: {}", e.getMessage());
@@ -177,7 +177,7 @@ public class MusicLibraryMenu {
 
             if (choice > 0 && choice <= favorites.size()) {
                 var selectedFavorite = favorites.get(choice - 1);
-                com.revplay.console.MusicPlayerMenu.playSongImmediate(selectedFavorite.getSongId(), currentUserId);
+                MusicMenu.playSongImmediate(selectedFavorite.getSongId(), currentUserId);
             }
         } catch (Exception e) {
             logger.error("Failed to view favorites: {}", e.getMessage());
@@ -205,7 +205,7 @@ public class MusicLibraryMenu {
 
             if (choice > 0 && choice <= recentlyPlayed.size()) {
                 var selectedHistory = recentlyPlayed.get(choice - 1);
-                com.revplay.console.MusicPlayerMenu.playSongImmediate(selectedHistory.getSongId(), currentUserId);
+                MusicMenu.playSongImmediate(selectedHistory.getSongId(), currentUserId);
             }
         } catch (Exception e) {
             logger.error("Failed to view recently played: {}", e.getMessage());
@@ -233,7 +233,7 @@ public class MusicLibraryMenu {
 
             if (choice > 0 && choice <= history.size()) {
                 var selectedHistory = history.get(choice - 1);
-                com.revplay.console.MusicPlayerMenu.playSongImmediate(selectedHistory.getSongId(), currentUserId);
+                MusicMenu.playSongImmediate(selectedHistory.getSongId(), currentUserId);
             }
         } catch (Exception e) {
             logger.error("Failed to view listening history: {}", e.getMessage());
@@ -427,7 +427,7 @@ public class MusicLibraryMenu {
                 
                 if (songChoice > 0 && songChoice <= songs.size()) {
                     Song selectedSong = songs.get(songChoice - 1);
-                    com.revplay.console.MusicPlayerMenu.playSongImmediate(selectedSong.getSongId(), currentUserId);
+                    MusicMenu.playSongImmediate(selectedSong.getSongId(), currentUserId);
                 }
             }
         } catch (Exception e) {
@@ -551,7 +551,7 @@ public class MusicLibraryMenu {
                 
                 if (songChoice > 0 && songChoice <= songs.size()) {
                     Song selectedSong = songs.get(songChoice - 1);
-                    com.revplay.console.MusicPlayerMenu.playSongImmediate(selectedSong.getSongId(), currentUserId);
+                    MusicMenu.playSongImmediate(selectedSong.getSongId(), currentUserId);
                 }
             }
         } catch (Exception e) {

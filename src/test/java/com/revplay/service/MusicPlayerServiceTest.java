@@ -42,9 +42,6 @@ class MusicPlayerServiceTest {
         
         player.resume();
         assertTrue(player.isRepeat());
-        
-        player.requestStop();
-        assertTrue(player.isRepeat());
     }
 
     @Test
@@ -68,9 +65,7 @@ class MusicPlayerServiceTest {
         
         player.toggleRepeat();
         assertTrue(player.isRepeat());
-        
-        player.requestStop();
-        assertFalse(player.isPlaying());
+
     }
 
     private Song createTestSong(Long id, String title, String artistName) {

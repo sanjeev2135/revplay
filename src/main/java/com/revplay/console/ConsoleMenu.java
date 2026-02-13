@@ -1,10 +1,9 @@
 package com.revplay.console;
 
 import com.revplay.model.User;
+import com.revplay.service.ServiceManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.Scanner;
 
 public class ConsoleMenu {
     private static final Logger logger = LogManager.getLogger(ConsoleMenu.class);
@@ -21,18 +20,27 @@ public class ConsoleMenu {
 
     private static void showUserMenu() {
         int choice;
-        Scanner scanner = new Scanner(System.in);
 
         do {
+            // Show permanent username header
+            System.out.println("\n" + "=".repeat(50));
+            System.out.println("👤 Logged in as: " + currentUser.getUsername());
             if (currentUser.isArtist()) {
-                System.out.println("\n=== ARTIST MENU (" + currentUser.getUsername() + ") ===");
+                System.out.println("🎵 Artist Account");
             } else {
-                System.out.println("\n=== USER MENU (" + currentUser.getUsername() + ") ===");
+                System.out.println("🎧 User Account");
             }
-            System.out.println("1. Music Library (Search, Browse, Favorites, History)");
-            System.out.println("2. My Playlists (Create, Edit, Delete)");
-            System.out.println("3. Music Player (Play, Pause, Skip, Repeat)");
-            // Only show Artist Profile option for artists
+            System.out.println("=".repeat(50));
+            
+            if (currentUser.isArtist()) {
+                System.out.println("\n=== ARTIST MENU ===");
+            } else {
+                System.out.println("\n=== USER MENU ===");
+            }
+            System.out.println("1. Music Library ");
+            System.out.println("2. My Playlists ");
+            System.out.println("3. Music Player ");
+            
             if (currentUser.isArtist()) {
                 System.out.println("4. Artist Profile");
                 System.out.println("5. Logout");
@@ -41,8 +49,8 @@ public class ConsoleMenu {
             }
             System.out.print("Choose: ");
 
-            choice = scanner.nextInt();
-            scanner.nextLine();
+            choice = ServiceManager.getScanner().nextInt();
+            ServiceManager.getScanner().nextLine();
 
             switch (choice) {
                 case 1 -> MusicLibraryMenu.show(currentUser.getUserId());
@@ -52,14 +60,16 @@ public class ConsoleMenu {
                     if (currentUser.isArtist()) {
                         ArtistMenu.show(currentUser.getUserId());
                     } else {
-                        System.out.println("👋 Logged out, " + currentUser.getUsername());
+                        System.out.println("👋 Logged out");
+                        ServiceManager.getMusicPlayerService().clearCurrentSong(); // Clear music player state
                         currentUser = null;
                         start();
                     }
                 }
                 case 5 -> {
                     if (currentUser.isArtist()) {
-                        System.out.println("👋 Logged out, " + currentUser.getUsername());
+                        System.out.println("👋 Logged out");
+                        ServiceManager.getMusicPlayerService().clearCurrentSong(); // Clear music player state
                         currentUser = null;
                         start();
                     } else {
