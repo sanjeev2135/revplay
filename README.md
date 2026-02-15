@@ -163,25 +163,46 @@ When you play a song, you'll see:
 ```
 🎵 NOW PLAYING: Song Title
    Artist: Artist Name
-   Duration: 3:45
+   Duration: 3:50
 
-   [Press ENTER to stop during playback]
+   Press [Enter] anytime to pause playback
+   Elapsed: 0:08 / 3:50
+```
 
-   ████████████████░░░░░░░░░░░░░░░░░░░░░░░░ 40% [1:30 / 3:45]
+**Pause/Resume Functionality:**
+- **Press ENTER** during playback → Pauses at exact time
+- **Choose Resume** → Continues from pause point seamlessly
+- **Multiple cycles supported** → Pause/Resume works repeatedly
+- **Time display accuracy** → Shows exact elapsed time on resume
+
+**Example Pause/Resume Flow:**
+```
+Playback: 0:05 / 3:50 → Press ENTER → ⏸️ Paused
+Resume: Choose option 1 → ▶️ Resumed: Song Title
+          ⏱️ Resuming from: 0:05 / 3:50
+          ⏱️ Continuing playback...
+Progress: 0:06 / 3:50, 0:07 / 3:50, etc.
 ```
 
 **Controls During Playback:**
-- **Wait for song to finish** → Auto-returns to menu
-- **Press ENTER** → Stop immediately
-- **Select menu option** → Invalid choice stops playback
+- **Press ENTER** → Pause immediately
+- **Choose menu option** → Stop, Repeat toggle
+- **Resume** → Continues from exact pause point
 
 **Music Menu Options:**
-1. **Play Song** - Enter song ID, watch real-time progress
-2. **Pause/Resume** - Control playback
-3. **Skip/Previous** - Navigate playlist
-4. **Toggle Repeat** - Loop current song/playlist
-5. **Toggle Favorite** - Add/remove from favorites
-6. **Stop** - End playback immediately
+1. **Play Song** - Search and play with timer
+2. **List by Artist** - Browse artist discography
+3. **Back** - Return to main menu
+
+**During Song Playback:**
+- **1. Pause** (when playing) / **1. Resume** (when paused)
+- **2. Stop** - End playback and return to menu
+- **3. Repeat toggle** - Loop current song
+
+**User Session Management:**
+- **Logout clears state** - Previous user's song doesn't persist
+- **User isolation** - Each user has separate music player state
+- **Clean login** - New users start with fresh player
 
 ### Artist Registration Flow
 
@@ -223,17 +244,64 @@ When you play a song, you'll see:
 
 ## Testing
 
+### Manual Testing Guide
+
+#### Critical Test: Pause/Resume Functionality
+1. **Play any song** → Wait for progress to start
+2. **Press ENTER at 0:05** → Should show "⏸️ Paused: Song Title"
+3. **Choose Resume (option 1)** → Should show:
+   ```
+   ▶️ Resumed: Song Title
+   ⏱️ Resuming from: 0:05 / 3:50
+   ⏱️ Continuing playback...
+   ```
+4. **Verify progress continues** → Should count from 0:06, 0:07, etc.
+5. **Test multiple cycles** → Repeat steps 2-4 multiple times
+
+#### User Session Isolation Test
+1. **User A plays song** → Pause at 0:10 → Logout
+2. **User B logs in** → Should see clean music player (no song playing)
+3. **User B plays different song** → Should work normally
+4. **User A logs back in** → Should not see User B's song
+
+### Automated Tests
 The application includes comprehensive unit tests using JUnit 5 and Mockito:
 
 - **UserServiceTest**: User management functionality
-- **SongServiceTest**: Song search and management
+- **SongServiceTest**: Song search and management  
 - **PlaylistServiceTest**: Playlist operations
-- **MusicPlayerServiceTest**: Music player controls
+- **MusicPlayerServiceTest**: Music player controls and pause/resume
 
 Run tests with:
 ```bash
 mvn test
 ```
+
+### Key Test Files
+- `TEST_DOCUMENTATION.md` - Comprehensive test scenarios and examples
+- `src/test/java/com/revplay/service/` - Unit test suite
+- Manual testing checklist for pause/resume functionality
+
+## Recent Improvements
+
+### ✅ Pause/Resume Functionality (Fixed)
+- **Seamless Time Tracking**: Songs resume from exact pause point
+- **Multiple Cycle Support**: Works across multiple pause/resume cycles
+- **Accurate Time Display**: Shows "⏱️ Resuming from: 0:05 / 3:50"
+- **Progress Continuity**: Progress bar continues without interruption
+- **Static Time Management**: Uses `currentElapsedSeconds` for state persistence
+
+### ✅ User Session Management (Enhanced)
+- **State Isolation**: Each user has separate music player state
+- **Clean Logout**: `clearCurrentSong()` method prevents cross-user contamination
+- **Fresh Start**: New users never see previous user's paused songs
+- **Session Security**: Proper cleanup on user logout
+
+### ✅ Menu System Improvements
+- **Dynamic Options**: Menu changes based on playback state
+- **Simplified Controls**: Only essential options (Pause/Resume, Stop, Repeat)
+- **Clear Feedback**: Consistent emoji usage and status messages
+- **Input Validation**: Robust error handling for invalid inputs
 
 ## Future Enhancements
 

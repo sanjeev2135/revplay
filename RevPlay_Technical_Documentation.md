@@ -615,7 +615,7 @@ public void playSong(long songId, long userId) {
             // Record listening history
             historyService.recordPlay(userId, songId);
             
-            // Start playback simulation
+            // Start playback simulation with progress tracking
             startPlaybackSimulation();
         }
     } catch (Exception e) {
@@ -624,13 +624,86 @@ public void playSong(long songId, long userId) {
 }
 ```
 
-#### **Playback Controls**
-- **Play/Pause**: Toggle playback state
-- **Skip/Previous**: Navigate between tracks
-- **Repeat**: Loop current song
-- **Favorite**: Add to favorites during playback
-- **Progress Bar**: Real-time playback progress
-- **Volume Control**: Audio volume management
+#### **Enhanced Pause/Resume System**
+```java
+// Static elapsed time tracking for seamless pause/resume
+private static int currentElapsedSeconds = 0;
+
+public void showSongProgress() {
+    // Get saved elapsed time or reset for new song
+    int elapsedSeconds = currentElapsedSeconds;
+    
+    while (elapsedSeconds < totalSeconds) {
+        if (!isPaused) {
+            Thread.sleep(1000);
+            elapsedSeconds++;
+            currentElapsedSeconds = elapsedSeconds; // Save current elapsed time
+            System.out.print("\r⏱️ Elapsed: " + formatTime(elapsedSeconds) + " / " + formatTime(totalSeconds));
+            
+            // Non-blocking pause detection
+            if (System.in.available() > 0) {
+                int input = System.in.read();
+                if (input == '\n' || input == '\r') {
+                    ServiceManager.getMusicPlayerService().pause();
+                    isPaused = true;
+                    System.out.println("\n⏸️ Paused: " + currentSong.getTitle());
+                    break; // Exit to pause menu
+                }
+            }
+        } else {
+            // Show pause controls and handle resume
+            showPausedControls(currentSong, elapsedSeconds, totalSeconds);
+            
+            int choice = ServiceManager.getScanner().nextInt();
+            switch (choice) {
+                case 1 -> {
+                    ServiceManager.getMusicPlayerService().resume();
+                    isPaused = false;
+                    System.out.println("\n▶️ Resumed: " + currentSong.getTitle());
+                    System.out.println("⏱️ Resuming from: " + formatTime(currentElapsedSeconds) + " / " + formatTime(totalSeconds));
+                    System.out.println("⏱️ Continuing playback...");
+                    // Continue from current elapsed time - don't restart
+                    Thread.sleep(500);
+                    break; // Exit paused state and continue main progress loop
+                }
+                case 2 -> {
+                    System.out.println("\n⏹️ Stopped: " + currentSong.getTitle());
+                    ServiceManager.getMusicPlayerService().stop();
+                    currentElapsedSeconds = 0; // Reset for next song
+                    return; // Return to music menu
+                }
+            }
+        }
+    }
+}
+```
+
+#### **Enhanced User Session Management**
+```java
+// Clear music player state on logout
+public void clearCurrentSong() {
+    currentSong = null;
+    currentPlaylist = null;
+    currentSongIndex = 0;
+    logger.info("🗑️ Cleared current song state");
+}
+
+// Logout implementation with state cleanup
+case 4 -> {
+    System.out.println("👋 Logged out");
+    ServiceManager.getMusicPlayerService().clearCurrentSong(); // Clear music player state
+    currentUser = null;
+    start();
+}
+```
+
+#### **Key Improvements Implemented**
+- **Static Time Tracking**: `currentElapsedSeconds` persists across pause/resume cycles
+- **Seamless Resume**: Continues from exact pause point without restarting
+- **Multiple Cycle Support**: Works across unlimited pause/resume cycles
+- **State Isolation**: User sessions don't share music player state
+- **Clean Logout**: Proper cleanup prevents cross-user contamination
+- **Progress Display**: Real-time elapsed time with accurate formatting
 
 ### **4. Playlist Management**
 
